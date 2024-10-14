@@ -19,15 +19,19 @@ local search_cb_jump = function(self, bufnr, query)
     vim.api.nvim_buf_call(bufnr, function()
         pcall(vim.fn.matchdelete, self.state.hl_id, self.state.winid)
         vim.cmd("keepjumps norm! gg")
-        vim.fn.search(query, "W")
+        -- Use pcall to safely handle search
+        pcall(vim.fn.search, query, "W")
         vim.cmd("norm! zz")
 
         self.state.hl_id = vim.fn.matchadd("TelescopePreviewMatch", query)
     end)
 end
 
+-- Modified make_whitespace_regex function
 local make_whitespace_regex = function(str)
-    local new = str:gsub("\n", "\\(.*\\n\\)*.*")
+    -- Replace newlines with a pattern that matches whitespace between lines
+    local new = str:gsub("\n", "\\(\\s*\\n\\)")
+    -- Ensure that multiple spaces are treated as a single match for whitespace
     return new:gsub("%s+", "\\s*")
 end
 
